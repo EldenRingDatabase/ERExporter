@@ -150,22 +150,13 @@ namespace ERExporter
 
                     foreach (var cell in row.Cells)
                     {
-                        if (cell.Def.InternalType == "f32")
+                        if (cell.Value is byte[] value)
                         {
-                            // Be compliant with Yapped, floats are rounded to 6 digits
-                            float value = (float)cell.Value;
-                            w.Write($"{value:0.######};");
+                            w.Write($"{Convert.ToHexString(value)};");
                         }
                         else
                         {
-                            if (cell.Value is byte[] value)
-                            {
-                                w.Write($"{Convert.ToHexString(value)};");
-                            }
-                            else
-                            {
-                                w.Write($"{cell.Value};");
-                            }
+                            w.Write($"{cell.Value};");
                         }
                     }
 

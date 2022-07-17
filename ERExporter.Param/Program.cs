@@ -135,13 +135,7 @@ namespace ERExporter
             Console.WriteLine($"Exporting param to {destination}");
 
             var fields = new List<string>{"Row ID", "Row Name"};
-            foreach (var paramField in param.AppliedParamdef.Fields)
-            {
-                if (!paramField.InternalType.StartsWith("dummy"))
-                {
-                    fields.Add(paramField.InternalName);
-                }
-            }
+            fields.AddRange(param.AppliedParamdef.Fields.Select(field => field.InternalName));
 
             using (var w = new StreamWriter(destination))
             {
@@ -156,11 +150,6 @@ namespace ERExporter
 
                     foreach (var cell in row.Cells)
                     {
-                        if (cell.Def.InternalType.StartsWith("dummy"))
-                        {
-                            continue;
-                        }
-
                         if (cell.Def.InternalType == "f32")
                         {
                             // Be compliant with Yapped, floats are rounded to 6 digits
@@ -169,7 +158,14 @@ namespace ERExporter
                         }
                         else
                         {
-                            w.Write($"{cell.Value};");
+                            if (cell.Value is byte[] value)
+                            {
+                                w.Write($"{Convert.ToHexString(value)};");
+                            }
+                            else
+                            {
+                                w.Write($"{cell.Value};");
+                            }
                         }
                     }
 
